@@ -22,7 +22,6 @@ build/
 *.swp
 *.swo
 *~
-.cursor/
 
 # ===== OS Generated =====
 .DS_Store
@@ -34,3 +33,4 @@ ehthumbs.db
 *.log
 *.tmp
 *.bak
+
