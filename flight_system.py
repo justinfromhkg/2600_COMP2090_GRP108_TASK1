@@ -1,3 +1,10 @@
+import json
+import os
+from flights import Flight
+from passenger import Passenger
+from admin import Admin
+
+
 class System:
 
     def __init__(self):
@@ -68,3 +75,37 @@ class System:
                 return "Passenger not booked on this flight"
 
         return "Flight not found"
+
+    # -------------------------
+    # JSON Persistence
+    # -------------------------
+    def save_to_json(self, filepath):
+        data = {
+            "users": [u.to_dict() for u in self._users],
+            "flights": [f.to_dict() for f in self._flights],
+        }
+        with open(filepath, "w", encoding="utf-8") as f:
+            json.dump(data, f, indent=2, ensure_ascii=False)
+
+    def load_from_json(self, filepath):
+        if not os.path.exists(filepath):
+            return False
+        with open(filepath, "r", encoding="utf-8") as f:
+            data = json.load(f)
+
+        self._users = []
+        users_map = {}
+        for u in data.get("users", []):
+            if u["type"] == "Admin":
+                user = Admin.from_dict(u)
+            else:
+                user = Passenger.from_dict(u)
+            self._users.append(user)
+            users_map[user.get_username()] = user
+
+        self._flights = []
+        for fd in data.get("flights", []):
+            flight = Flight.from_dict(fd, users_map)
+            self._flights.append(flight)
+
+        return True

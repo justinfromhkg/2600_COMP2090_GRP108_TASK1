@@ -5,11 +5,14 @@ Run this file to launch the application.
 
 import webview
 import json
+import os
 from flight_system import System
 from flights import Flight
 from passenger import Passenger
 from admin import Admin
 import time
+
+DATA_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data.json")
 
 # =========================================================
 # Backend API – exposed to JavaScript via pywebview bridge
@@ -20,9 +23,14 @@ class Api:
     def __init__(self):
         self.system = System()
         self.current_user = None
-        self._seed_demo_data()
+        if not self.system.load_from_json(DATA_FILE):
+            self._seed_demo_data()
+            self._save()
 
     # ----- helpers -----
+    def _save(self):
+        self.system.save_to_json(DATA_FILE)
+
     def _seed_demo_data(self):
         """Pre-populate some flights so the UI is not empty on first run."""
         demo_flights = [
@@ -52,6 +60,7 @@ class Api:
             user = Passenger(username, name, email, password)
         self.system.register_user(user)
         self.current_user = user
+        self._save()
         return json.dumps({"ok": True, "msg": "Registration successful",
                            "role": user.display_role()})
 
@@ -93,8 +102,9 @@ class Api:
             return json.dumps({"ok": False, "msg": "Not logged in"})
         msg = self.system.book_flight(self.current_user, flight_number)
         ok = msg == "Booking successful"
-        time.sleep(0.1)  # Simulate processing delay
-        # avoid double booking by checking if user already booked the flight
+        time.sleep(0.1)
+        if ok:
+            self._save()
         return json.dumps({"ok": ok, "msg": msg})
 
     def cancel_booking(self, flight_number):
@@ -102,6 +112,8 @@ class Api:
             return json.dumps({"ok": False, "msg": "Not logged in"})
         msg = self.system.cancel_booking(self.current_user, flight_number)
         ok = msg == "Booking cancelled"
+        if ok:
+            self._save()
         return json.dumps({"ok": ok, "msg": msg})
 
     def get_my_bookings(self):
@@ -120,6 +132,8 @@ class Api:
         flight = Flight(number, origin, dest, time, int(capacity), aircraft)
         msg = self.current_user.add_flight(self.system, flight)
         ok = msg == "Flight added successfully"
+        if ok:
+            self._save()
         return json.dumps({"ok": ok, "msg": msg})
 
     def remove_flight(self, flight_number):
@@ -127,6 +141,8 @@ class Api:
             return json.dumps({"ok": False, "msg": "Permission denied"})
         msg = self.current_user.remove_flight(self.system, flight_number)
         ok = msg == "Flight removed successfully"
+        if ok:
+            self._save()
         return json.dumps({"ok": ok, "msg": msg})
 
     def update_flight_time(self, flight_number, new_time):
@@ -134,6 +150,8 @@ class Api:
             return json.dumps({"ok": False, "msg": "Permission denied"})
         msg = self.current_user.update_flight_time(self.system, flight_number, new_time)
         ok = msg == "Flight time updated"
+        if ok:
+            self._save()
         return json.dumps({"ok": ok, "msg": msg})
 
     def get_flight_passengers(self, flight_number):

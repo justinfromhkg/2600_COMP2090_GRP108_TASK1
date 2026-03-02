@@ -76,6 +76,35 @@ class Flight:
             return True
         return False
 
+    def get_capacity(self):
+        return self._capacity
+
+    def to_dict(self):
+        return {
+            "flight_number": self._flight_number,
+            "origin": self._origin,
+            "destination": self._destination,
+            "departure_time": self._departure_time,
+            "capacity": self._capacity,
+            "aircraft": self._aircraft,
+            "booked_passengers": [p.get_username() for p in self._booked_passengers],
+        }
+
+    @classmethod
+    def from_dict(cls, data, users_map):
+        flight = cls(
+            data["flight_number"],
+            data["origin"],
+            data["destination"],
+            data["departure_time"],
+            data["capacity"],
+            data["aircraft"],
+        )
+        for username in data.get("booked_passengers", []):
+            if username in users_map:
+                flight._booked_passengers.append(users_map[username])
+        return flight
+
     def __str__(self):
         return (f"Flight: {self._flight_number} | "
                 f"{self._origin} → {self._destination} | "

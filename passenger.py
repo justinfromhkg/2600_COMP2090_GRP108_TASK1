@@ -1,6 +1,7 @@
 from person import Person
 
 
+
 class Passenger(Person):
 
     def __init__(self, username, name, email, password):
@@ -15,6 +16,22 @@ class Passenger(Person):
                 f"Username: {self.get_username()}\n"
                 f"Name: {self.get_name()}\n"
                 f"Email: {self.get_email()}")
+
+    def to_dict(self):
+        return {
+            "type": "Passenger",
+            "username": self.get_username(),
+            "name": self.get_name(),
+            "email": self.get_email(),
+            "password_hash": self.get_password_hash(),
+        }
+
+    @classmethod
+    def from_dict(cls, data):
+        passenger = cls.__new__(cls)
+        Person.__init__(passenger, data["username"], data["name"], data["email"], "placeholder")
+        passenger.set_password_hash(data["password_hash"])
+        return passenger
 
     # -------------------------
     # Functionalities

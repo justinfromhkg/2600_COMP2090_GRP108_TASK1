@@ -34,3 +34,6 @@ ehthumbs.db
 *.tmp
 *.bak
 
+# ===== App Data =====
+data.json
+

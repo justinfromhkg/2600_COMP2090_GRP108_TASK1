@@ -17,6 +17,24 @@ class Admin(Person):
                 f"Email: {self.get_email()}\n"
                 f"Admin Level: {self._adminLevel}")
 
+    def to_dict(self):
+        return {
+            "type": "Admin",
+            "username": self.get_username(),
+            "name": self.get_name(),
+            "email": self.get_email(),
+            "password_hash": self.get_password_hash(),
+            "admin_level": self._adminLevel,
+        }
+
+    @classmethod
+    def from_dict(cls, data):
+        admin = cls.__new__(cls)
+        Person.__init__(admin, data["username"], data["name"], data["email"], "placeholder")
+        admin.set_password_hash(data["password_hash"])
+        admin._adminLevel = data.get("admin_level", 1)
+        return admin
+
     def get_admin_level(self):
         return self._adminLevel
 

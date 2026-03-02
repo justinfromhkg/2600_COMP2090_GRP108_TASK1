@@ -39,6 +39,12 @@ class Person(ABC):
     def set_email(self, email):
         self._email = email
 
+    def get_password_hash(self):
+        return self.__password
+
+    def set_password_hash(self, password_hash):
+        self.__password = password_hash
+
     @abstractmethod
     def __str__(self):
         pass
