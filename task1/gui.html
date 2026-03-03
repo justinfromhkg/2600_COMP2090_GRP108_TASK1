@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>SkyBooker – Flight Booking System</title>
+<style>
+/* ===== CSS Reset & Variables ===== */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --primary: #4f46e5;
+  --primary-light: #6366f1;
+  --primary-dark: #4338ca;
+  --accent: #06b6d4;
+  --success: #22c55e;
+  --danger: #ef4444;
+  --warning: #f59e0b;
+  --bg: #f8fafc;
+  --surface: #ffffff;
+  --surface-alt: #f1f5f9;
+  --text: #1e293b;
+  --text-secondary: #64748b;
+  --border: #e2e8f0;
+  --radius: 12px;
+  --shadow-sm: 0 1px 2px rgba(0,0,0,.05);
+  --shadow: 0 4px 6px -1px rgba(0,0,0,.07), 0 2px 4px -2px rgba(0,0,0,.05);
+  --shadow-lg: 0 10px 15px -3px rgba(0,0,0,.08), 0 4px 6px -4px rgba(0,0,0,.05);
+  --transition: .25s cubic-bezier(.4,0,.2,1);
+}
+body {
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  line-height: 1.6;
+}
+a { color: var(--primary); text-decoration: none; }
+button { cursor: pointer; font-family: inherit; }
+
+/* ===== Utility ===== */
+.hidden { display: none !important; }
+
+/* ===== Toast ===== */
+#toast-container {
+  position: fixed; top: 24px; right: 24px; z-index: 9999;
+  display: flex; flex-direction: column; gap: 8px;
+}
+.toast {
+  padding: 14px 22px; border-radius: var(--radius); color: #fff;
+  font-size: .95rem; font-weight: 500;
+  box-shadow: var(--shadow-lg);
+  animation: slideIn .35s ease-out;
+  max-width: 360px;
+}
+.toast.success { background: var(--success); }
+.toast.error   { background: var(--danger); }
+.toast.info    { background: var(--primary); }
+@keyframes slideIn { from { opacity: 0; transform: translateX(60px); } to { opacity: 1; transform: translateX(0); } }
+@keyframes fadeOut  { to { opacity: 0; transform: translateX(60px); } }
+
+/* ===== Auth Page ===== */
+#auth-page {
+  display: flex; align-items: center; justify-content: center;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+.auth-card {
+  background: var(--surface);
+  border-radius: 20px;
+  padding: 48px 40px;
+  width: 420px;
+  max-width: 95vw;
+  box-shadow: 0 25px 50px -12px rgba(0,0,0,.25);
+}
+.auth-card h1 {
+  font-size: 1.75rem;
+  text-align: center;
+  margin-bottom: 6px;
+  background: linear-gradient(135deg, var(--primary), var(--accent));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.auth-card .subtitle {
+  text-align: center;
+  color: var(--text-secondary);
+  margin-bottom: 28px;
+  font-size: .95rem;
+}
+.auth-tabs {
+  display: flex; gap: 4px;
+  background: var(--surface-alt);
+  border-radius: 10px;
+  padding: 4px;
+  margin-bottom: 24px;
+}
+.auth-tabs button {
+  flex: 1;
+  padding: 10px;
+  border: none;
+  border-radius: 8px;
+  font-size: .9rem;
+  font-weight: 600;
+  background: transparent;
+  color: var(--text-secondary);
+  transition: var(--transition);
+}
+.auth-tabs button.active {
+  background: var(--primary);
+  color: #fff;
+  box-shadow: var(--shadow-sm);
+}
+.form-group {
+  margin-bottom: 16px;
+}
+.form-group label {
+  display: block;
+  font-size: .85rem;
+  font-weight: 600;
+  margin-bottom: 6px;
+  color: var(--text-secondary);
+}
+.form-group input, .form-group select {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  font-size: .95rem;
+  transition: var(--transition);
+  background: var(--surface);
+  color: var(--text);
+}
+.form-group input:focus, .form-group select:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(79,70,229,.15);
+}
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  padding: 12px 24px;
+  border: none;
+  border-radius: 10px;
+  font-size: .95rem;
+  font-weight: 600;
+  transition: var(--transition);
+}
+.btn-primary {
+  background: var(--primary); color: #fff; width: 100%;
+}
+.btn-primary:hover { background: var(--primary-dark); transform: translateY(-1px); box-shadow: var(--shadow); }
+.btn-success { background: var(--success); color: #fff; }
+.btn-success:hover { filter: brightness(1.08); }
+.btn-danger  { background: var(--danger); color: #fff; }
+.btn-danger:hover  { filter: brightness(1.08); }
+.btn-outline {
+  background: transparent; border: 1.5px solid var(--border); color: var(--text);
+}
+.btn-outline:hover { border-color: var(--primary); color: var(--primary); }
+.btn-sm { padding: 8px 16px; font-size: .85rem; border-radius: 8px; }
+.btn-icon {
+  width: 38px; height: 38px; padding: 0;
+  border-radius: 10px; border: 1.5px solid var(--border);
+  background: var(--surface); color: var(--text-secondary);
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: 1.1rem;
+}
+.btn-icon:hover { border-color: var(--primary); color: var(--primary); }
+
+/* ===== App Shell ===== */
+#app-page { display: flex; min-height: 100vh; }
+.sidebar {
+  width: 260px;
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  display: flex; flex-direction: column;
+  padding: 24px 16px;
+  position: fixed; top: 0; left: 0; bottom: 0;
+  z-index: 10;
+}
+.sidebar .brand {
+  font-size: 1.35rem; font-weight: 800;
+  background: linear-gradient(135deg, var(--primary), var(--accent));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 8px;
+  padding: 0 8px;
+}
+.sidebar .brand-sub {
+  font-size: .78rem;
+  color: var(--text-secondary);
+  padding: 0 8px;
+  margin-bottom: 28px;
+}
+.sidebar nav { flex: 1; display: flex; flex-direction: column; gap: 4px; }
+.nav-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 11px 14px;
+  border-radius: 10px;
+  font-size: .92rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: var(--transition);
+  border: none; background: none; width: 100%; text-align: left;
+}
+.nav-item:hover { background: var(--surface-alt); color: var(--text); }
+.nav-item.active { background: rgba(79,70,229,.08); color: var(--primary); font-weight: 600; }
+.nav-item .icon { font-size: 1.2rem; width: 24px; text-align: center; }
+.sidebar .user-info {
+  border-top: 1px solid var(--border);
+  padding-top: 16px;
+  margin-top: 16px;
+}
+.sidebar .user-info .user-name { font-weight: 600; font-size: .95rem; }
+.sidebar .user-info .user-role {
+  font-size: .8rem;
+  color: var(--text-secondary);
+  display: flex; align-items: center; gap: 6px;
+}
+.sidebar .user-info .role-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-size: .72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+.role-badge.admin { background: rgba(239,68,68,.1); color: var(--danger); }
+.role-badge.passenger { background: rgba(79,70,229,.1); color: var(--primary); }
+.logout-btn {
+  margin-top: 12px;
+  width: 100%;
+  padding: 10px;
+  border-radius: 10px;
+  border: 1.5px solid var(--border);
+  background: none;
+  font-size: .88rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: var(--transition);
+}
+.logout-btn:hover { border-color: var(--danger); color: var(--danger); }
+
+/* Main Content */
+.main-content {
+  margin-left: 260px;
+  flex: 1;
+  padding: 32px 40px;
+  max-width: 1200px;
+}
+.page-header {
+  margin-bottom: 28px;
+}
+.page-header h2 { font-size: 1.5rem; font-weight: 700; margin-bottom: 4px; }
+.page-header p { color: var(--text-secondary); font-size: .92rem; }
+
+/* Cards */
+.card {
+  background: var(--surface);
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  padding: 24px;
+  margin-bottom: 20px;
+  box-shadow: var(--shadow-sm);
+  transition: var(--transition);
+}
+.card:hover { box-shadow: var(--shadow); }
+.card-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 16px;
+}
+.card-header h3 { font-size: 1.08rem; font-weight: 600; }
+
+/* Search */
+.search-bar {
+  display: flex; gap: 10px; margin-bottom: 24px;
+}
+.search-bar input {
+  flex: 1;
+  padding: 12px 18px;
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  font-size: .95rem;
+  transition: var(--transition);
+}
+.search-bar input:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(79,70,229,.12);
+}
+
+/* Table */
+.table-wrap { overflow-x: auto; }
+table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: .9rem;
+}
+thead th {
+  text-align: left;
+  padding: 12px 16px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  font-size: .82rem;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  border-bottom: 1.5px solid var(--border);
+  background: var(--surface-alt);
+}
+thead th:first-child { border-radius: 10px 0 0 0; }
+thead th:last-child  { border-radius: 0 10px 0 0; }
+tbody td {
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: middle;
+}
+tbody tr:hover { background: rgba(79,70,229,.03); }
+.seats-badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 6px;
+  font-size: .82rem;
+  font-weight: 600;
+}
+.seats-badge.ok   { background: rgba(34,197,94,.1);  color: var(--success); }
+.seats-badge.low  { background: rgba(245,158,11,.1); color: var(--warning); }
+.seats-badge.full { background: rgba(239,68,68,.1);  color: var(--danger); }
+
+/* Modal */
+.modal-overlay {
+  position: fixed; inset: 0;
+  background: rgba(15,23,42,.45);
+  backdrop-filter: blur(4px);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 1000;
+  animation: fadeInOverlay .2s ease;
+}
+@keyframes fadeInOverlay { from { opacity: 0; } }
+.modal {
+  background: var(--surface);
+  border-radius: 16px;
+  padding: 32px;
+  width: 480px;
+  max-width: 92vw;
+  box-shadow: 0 25px 50px -12px rgba(0,0,0,.25);
+  animation: scaleIn .25s ease;
+}
+@keyframes scaleIn { from { opacity:0; transform: scale(.95); } }
+.modal h3 { font-size: 1.2rem; margin-bottom: 20px; }
+.modal .form-group { margin-bottom: 14px; }
+.modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 24px; }
+
+/* Stats row */
+.stats-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px,1fr)); gap: 16px; margin-bottom: 28px; }
+.stat-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+  box-shadow: var(--shadow-sm);
+}
+.stat-card .stat-label { font-size: .82rem; color: var(--text-secondary); font-weight: 500; margin-bottom: 4px; }
+.stat-card .stat-value { font-size: 1.6rem; font-weight: 700; }
+.stat-card .stat-icon  { font-size: 1.6rem; margin-bottom: 8px; }
+
+/* Empty state */
+.empty-state {
+  text-align: center; padding: 48px 24px; color: var(--text-secondary);
+}
+.empty-state .icon { font-size: 3rem; margin-bottom: 12px; }
+.empty-state h4 { font-size: 1.1rem; margin-bottom: 6px; color: var(--text); }
+</style>
+</head>
+<body>
+
+<!-- Toast Container -->
+<div id="toast-container"></div>
+
+<!-- ===== AUTH PAGE ===== -->
+<div id="auth-page">
+  <div class="auth-card">
+    <h1>✈ SkyBooker</h1>
+    <p class="subtitle">Flight Booking System</p>
+
+    <div class="auth-tabs">
+      <button class="active" onclick="showAuthTab('login')">Login</button>
+      <button onclick="showAuthTab('register')">Register</button>
+    </div>
+
+    <!-- Login Form -->
+    <div id="login-form">
+      <div class="form-group">
+        <label>Username</label>
+        <input id="login-user" type="text" placeholder="Enter your username" />
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <input id="login-pass" type="password" placeholder="Enter your password" />
+      </div>
+      <button class="btn btn-primary" onclick="doLogin()">Sign In</button>
+      <p style="text-align:center;margin-top:14px;font-size:.84rem;color:var(--text-secondary)">
+        Demo: admin / admin123
+      </p>
+    </div>
+
+    <!-- Register Form -->
+    <div id="register-form" class="hidden">
+      <div class="form-group">
+        <label>Username</label>
+        <input id="reg-user" type="text" placeholder="Choose a username" />
+      </div>
+      <div class="form-group">
+        <label>Full Name</label>
+        <input id="reg-name" type="text" placeholder="Your full name" />
+      </div>
+      <div class="form-group">
+        <label>Email</label>
+        <input id="reg-email" type="email" placeholder="you@example.com" />
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <input id="reg-pass" type="password" placeholder="Create a password" />
+      </div>
+      <div class="form-group">
+        <label>Role</label>
+        <select id="reg-role">
+          <option value="passenger">Passenger</option>
+          <option value="admin">Admin</option>
+        </select>
+      </div>
+      <button class="btn btn-primary" onclick="doRegister()">Create Account</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== APP PAGE ===== -->
+<div id="app-page" class="hidden">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="brand">✈ SkyBooker</div>
+    <div class="brand-sub">Flight Booking System</div>
+    <nav id="sidebar-nav"></nav>
+    <div class="user-info">
+      <div class="user-name" id="side-user-name"></div>
+      <div class="user-role"><span class="role-badge" id="side-user-role"></span></div>
+      <button class="logout-btn" onclick="doLogout()">⎋ Sign Out</button>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <main class="main-content" id="main-content"></main>
+</div>
+
+<!-- ===== JavaScript ===== -->
+<script>
+// ---- Helpers ----
+function $(id){ return document.getElementById(id); }
+function toast(msg, type='info'){
+  const el = document.createElement('div');
+  el.className = 'toast ' + type;
+  el.textContent = msg;
+  $('toast-container').appendChild(el);
+  setTimeout(()=>{ el.style.animation='fadeOut .3s ease forwards'; setTimeout(()=>el.remove(),300); }, 3000);
+}
+async function api(method, ...args){
+  const raw = await window.pywebview.api[method](...args);
+  return JSON.parse(raw);
+}
+
+let currentRole = '';
+let currentSection = '';
+
+// ---- Auth ----
+function showAuthTab(tab){
+  document.querySelectorAll('.auth-tabs button').forEach(b=>b.classList.remove('active'));
+  if(tab==='login'){
+    $('login-form').classList.remove('hidden');
+    $('register-form').classList.add('hidden');
+    document.querySelectorAll('.auth-tabs button')[0].classList.add('active');
+  } else {
+    $('login-form').classList.add('hidden');
+    $('register-form').classList.remove('hidden');
+    document.querySelectorAll('.auth-tabs button')[1].classList.add('active');
+  }
+}
+async function doLogin(){
+  const u = $('login-user').value.trim();
+  const p = $('login-pass').value;
+  if(!u||!p){ toast('Please fill in all fields','error'); return; }
+  const r = await api('login', u, p);
+  if(r.ok){ toast('Welcome back, '+r.name+'!','success'); enterApp(r.role, r.name); }
+  else { toast(r.msg,'error'); }
+}
+async function doRegister(){
+  const u = $('reg-user').value.trim();
+  const n = $('reg-name').value.trim();
+  const e = $('reg-email').value.trim();
+  const p = $('reg-pass').value;
+  const role = $('reg-role').value;
+  if(!u||!n||!e||!p){ toast('Please fill in all fields','error'); return; }
+  const r = await api('register', u, n, e, p, role);
+  if(r.ok){ toast('Registration successful!','success'); enterApp(r.role, n); }
+  else { toast(r.msg,'error'); }
+}
+async function doLogout(){
+  await api('logout');
+  $('auth-page').classList.remove('hidden');
+  $('app-page').classList.add('hidden');
+  toast('Signed out','info');
+}
+
+// ---- Enter App ----
+function enterApp(role, name){
+  currentRole = role;
+  $('auth-page').classList.add('hidden');
+  $('app-page').classList.remove('hidden');
+  $('side-user-name').textContent = name;
+  const badge = $('side-user-role');
+  badge.textContent = role;
+  badge.className = 'role-badge ' + role.toLowerCase();
+  buildNav();
+  navigate(role==='Admin'?'dashboard':'flights');
+}
+
+// ---- Navigation ----
+const navConfig = {
+  Passenger: [
+    { id:'flights',   icon:'🔍', label:'Search Flights' },
+    { id:'bookings',  icon:'🎫', label:'My Bookings' },
+  ],
+  Admin: [
+    { id:'dashboard', icon:'📊', label:'Dashboard' },
+    { id:'flights',   icon:'✈',  label:'All Flights' },
+    { id:'manage',    icon:'⚙',  label:'Manage Flights' },
+  ]
+};
+function buildNav(){
+  const nav = $('sidebar-nav');
+  nav.innerHTML = '';
+  (navConfig[currentRole]||[]).forEach(item=>{
+    const btn = document.createElement('button');
+    btn.className = 'nav-item';
+    btn.innerHTML = '<span class="icon">'+item.icon+'</span>'+item.label;
+    btn.onclick = ()=> navigate(item.id);
+    btn.dataset.section = item.id;
+    nav.appendChild(btn);
+  });
+}
+function navigate(section){
+  currentSection = section;
+  document.querySelectorAll('.nav-item').forEach(b=>{
+    b.classList.toggle('active', b.dataset.section===section);
+  });
+  const main = $('main-content');
+  switch(section){
+    case 'dashboard': renderDashboard(main); break;
+    case 'flights':   renderFlights(main); break;
+    case 'bookings':  renderBookings(main); break;
+    case 'manage':    renderManage(main); break;
+  }
+}
+
+// ---- RENDER: Dashboard (Admin) ----
+async function renderDashboard(el){
+  const flights = await api('get_flights');
+  const users   = (await api('get_current_user'));
+  const totalSeats = flights.reduce((s,f)=>s+f.seats,0);
+  el.innerHTML = `
+    <div class="page-header"><h2>Dashboard</h2><p>Overview of the flight system</p></div>
+    <div class="stats-row">
+      <div class="stat-card"><div class="stat-icon">✈</div><div class="stat-label">Total Flights</div><div class="stat-value">${flights.length}</div></div>
+      <div class="stat-card"><div class="stat-icon">💺</div><div class="stat-label">Available Seats</div><div class="stat-value">${totalSeats}</div></div>
+      <div class="stat-card"><div class="stat-icon">🛡</div><div class="stat-label">Your Role</div><div class="stat-value" style="font-size:1.2rem">Admin</div></div>
+    </div>
+    <div class="card">
+      <div class="card-header"><h3>Recent Flights</h3></div>
+      <div class="table-wrap">${flightTable(flights, false)}</div>
+    </div>`;
+}
+
+// ---- RENDER: Flights (both roles) ----
+async function renderFlights(el){
+  const isAdmin = currentRole==='Admin';
+  el.innerHTML = `
+    <div class="page-header"><h2>${isAdmin?'All Flights':'Search Flights'}</h2>
+    <p>${isAdmin?'View and manage all flights in the system':'Find and book your next flight'}</p></div>
+    <div class="search-bar">
+      <input id="flight-search" placeholder="Search by flight number, origin or destination…" oninput="searchFlightsDebounced()"/>
+    </div>
+    <div class="card" id="flights-card"><div class="table-wrap" id="flights-table-wrap"></div></div>`;
+  loadFlightsTable('');
+}
+let _searchTimer;
+function searchFlightsDebounced(){ clearTimeout(_searchTimer); _searchTimer=setTimeout(()=>loadFlightsTable($('flight-search').value),250); }
+async function loadFlightsTable(kw){
+  const flights = kw ? await api('search_flights',kw) : await api('get_flights');
+  const wrap = $('flights-table-wrap');
+  if(!flights.length){
+    wrap.innerHTML = '<div class="empty-state"><div class="icon">🔎</div><h4>No flights found</h4><p>Try a different search term</p></div>';
+    return;
+  }
+  wrap.innerHTML = flightTable(flights, currentRole==='Passenger');
+}
+
+function flightTable(flights, showBook){
+  let html='<table><thead><tr><th>Flight</th><th>Origin</th><th>Destination</th><th>Departure</th><th>Aircraft</th><th>Seats</th>';
+  if(showBook) html+='<th>Action</th>';
+  if(currentRole==='Admin') html+='<th>Passengers</th>';
+  html+='</tr></thead><tbody>';
+  flights.forEach(f=>{
+    const cls = f.seats===0?'full':f.seats<=10?'low':'ok';
+    html+=`<tr>
+      <td style="font-weight:600">${f.number}</td><td>${f.origin}</td><td>${f.destination}</td>
+      <td>${f.departure}</td><td>${f.aircraft}</td><td><span class="seats-badge ${cls}">${f.seats===0?'Full':f.seats}</span></td>`;
+    if(showBook) html+=`<td><button class="btn btn-success btn-sm" onclick="bookFlight('${f.number}')" ${f.seats===0?'disabled style="opacity:.5"':''}>Book</button></td>`;
+    if(currentRole==='Admin') html+=`<td><button class="btn btn-outline btn-sm" onclick="viewPassengers('${f.number}')">View</button></td>`;
+    html+='</tr>';
+  });
+  html+='</tbody></table>';
+  return html;
+}
+
+async function bookFlight(num){
+  const r = await api('book_flight', num);
+  toast(r.msg, r.ok?'success':'error');
+  if(r.ok) loadFlightsTable($('flight-search')?.value||'');
+}
+
+// ---- RENDER: My Bookings (Passenger) ----
+async function renderBookings(el){
+  const bookings = await api('get_my_bookings');
+  el.innerHTML = `
+    <div class="page-header"><h2>My Bookings</h2><p>View and manage your flight bookings</p></div>
+    <div class="card" id="bookings-card"></div>`;
+  const card = $('bookings-card');
+  if(!bookings.length){
+    card.innerHTML='<div class="empty-state"><div class="icon">🎫</div><h4>No bookings yet</h4><p>Search flights and book your first trip!</p></div>';
+    return;
+  }
+  let html='<div class="table-wrap"><table><thead><tr><th>Flight</th><th>Origin</th><th>Destination</th><th>Departure</th><th>Aircraft</th><th>Action</th></tr></thead><tbody>';
+  bookings.forEach(f=>{
+    html+=`<tr><td style="font-weight:600">${f.number}</td><td>${f.origin}</td><td>${f.destination}</td><td>${f.departure}</td><td>${f.aircraft}</td>
+    <td><button class="btn btn-danger btn-sm" onclick="cancelBooking('${f.number}')">Cancel</button></td></tr>`;
+  });
+  html+='</tbody></table></div>';
+  card.innerHTML=html;
+}
+async function cancelBooking(num){
+  const r = await api('cancel_booking', num);
+  toast(r.msg, r.ok?'success':'error');
+  if(r.ok) renderBookings($('main-content'));
+}
+
+// ---- RENDER: Manage Flights (Admin) ----
+async function renderManage(el){
+  el.innerHTML = `
+    <div class="page-header"><h2>Manage Flights</h2><p>Add, update or remove flights</p></div>
+    <div style="display:flex;gap:10px;margin-bottom:24px">
+      <button class="btn btn-primary btn-sm" onclick="showAddFlightModal()">+ Add Flight</button>
+    </div>
+    <div class="card"><div class="table-wrap" id="manage-table"></div></div>`;
+  loadManageTable();
+}
+async function loadManageTable(){
+  const flights = await api('get_flights');
+  const wrap = $('manage-table');
+  if(!flights.length){
+    wrap.innerHTML='<div class="empty-state"><div class="icon">✈</div><h4>No flights</h4><p>Add a flight to get started</p></div>';
+    return;
+  }
+  let html='<table><thead><tr><th>Flight</th><th>Origin</th><th>Destination</th><th>Aircraft</th><th>Departure</th><th>Seats</th><th>Actions</th></tr></thead><tbody>';
+  flights.forEach(f=>{
+    const cls = f.seats===0?'full':f.seats<=10?'low':'ok';
+    html+=`<tr><td style="font-weight:600">${f.number}</td><td>${f.origin}</td><td>${f.destination}</td><td>${f.aircraft}</td>
+    <td>${f.departure}</td><td><span class="seats-badge ${cls}">${f.seats===0?'Full':f.seats}</span></td>
+    <td style="display:flex;gap:6px">
+      <button class="btn btn-outline btn-sm" onclick="showUpdateTimeModal('${f.number}','${f.departure}')">✏ Edit Time</button>
+      <button class="btn btn-danger btn-sm" onclick="removeFlight('${f.number}')">✕ Remove</button>
+    </td></tr>`;
+  });
+  html+='</tbody></table>';
+  wrap.innerHTML=html;
+}
+
+// ---- Modals ----
+function closeModal(){ const m=document.querySelector('.modal-overlay'); if(m) m.remove(); }
+
+function showAddFlightModal(){
+  const overlay=document.createElement('div'); overlay.className='modal-overlay'; overlay.onclick=e=>{if(e.target===overlay)closeModal();};
+  overlay.innerHTML=`<div class="modal"><h3>Add New Flight</h3>
+    <div class="form-group"><label>Flight Number</label><input id="m-num" placeholder="e.g. CA1234"/></div>
+    <div class="form-group"><label>Origin</label><input id="m-ori" placeholder="Departure city"/></div>
+    <div class="form-group"><label>Destination</label><input id="m-dst" placeholder="Arrival city"/></div>
+    <div class="form-group"><label>Departure Time</label><input id="m-time" placeholder="e.g. 2026-04-01 14:00"/></div>
+    <div class="form-group"><label>Capacity</label><input id="m-cap" type="number" placeholder="e.g. 150"/></div>
+    <div class="form-group"><label>Aircraft</label><input id="m-aircraft" placeholder="e.g. Boeing 737-800"/></div>
+    <div class="modal-actions">
+      <button class="btn btn-outline btn-sm" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary btn-sm" onclick="doAddFlight()">Add Flight</button>
+    </div></div>`;
+  document.body.appendChild(overlay);
+}
+async function doAddFlight(){
+  const num=$('m-num').value.trim(), ori=$('m-ori').value.trim(), dst=$('m-dst').value.trim(), time=$('m-time').value.trim(), cap=$('m-cap').value.trim(), aircraft=$('m-aircraft').value.trim();
+  if(!num||!ori||!dst||!time||!cap||!aircraft){ toast('Please fill all fields','error'); return; }
+  const r = await api('add_flight', num, ori, dst, time, parseInt(cap), aircraft);
+  toast(r.msg, r.ok?'success':'error');
+  if(r.ok){ closeModal(); loadManageTable(); }
+}
+
+function showUpdateTimeModal(num, current){
+  const overlay=document.createElement('div'); overlay.className='modal-overlay'; overlay.onclick=e=>{if(e.target===overlay)closeModal();};
+  overlay.innerHTML=`<div class="modal"><h3>Update Departure Time</h3>
+    <p style="margin-bottom:16px;color:var(--text-secondary)">Flight: <strong>${num}</strong></p>
+    <div class="form-group"><label>New Departure Time</label><input id="m-newtime" value="${current}"/></div>
+    <div class="modal-actions">
+      <button class="btn btn-outline btn-sm" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary btn-sm" onclick="doUpdateTime('${num}')">Update</button>
+    </div></div>`;
+  document.body.appendChild(overlay);
+}
+async function doUpdateTime(num){
+  const t=$('m-newtime').value.trim();
+  if(!t){ toast('Please enter a time','error'); return; }
+  const r = await api('update_flight_time', num, t);
+  toast(r.msg, r.ok?'success':'error');
+  if(r.ok){ closeModal(); loadManageTable(); }
+}
+
+async function removeFlight(num){
+  const r = await api('remove_flight', num);
+  toast(r.msg, r.ok?'success':'error');
+  if(r.ok) loadManageTable();
+}
+
+// ---- View passengers modal ----
+async function viewPassengers(num){
+  const list = await api('get_flight_passengers', num);
+  const overlay=document.createElement('div'); overlay.className='modal-overlay'; overlay.onclick=e=>{if(e.target===overlay)closeModal();};
+  let body='';
+  if(!list.length){ body='<div class="empty-state" style="padding:24px"><div class="icon">👥</div><h4>No passengers</h4></div>'; }
+  else {
+    body='<table><thead><tr><th>Username</th><th>Name</th><th>Email</th></tr></thead><tbody>';
+    list.forEach(p=>{ body+=`<tr><td>${p.username}</td><td>${p.name}</td><td>${p.email}</td></tr>`; });
+    body+='</tbody></table>';
+  }
+  overlay.innerHTML=`<div class="modal"><h3>Passengers – ${num}</h3><div class="table-wrap">${body}</div>
+    <div class="modal-actions"><button class="btn btn-outline btn-sm" onclick="closeModal()">Close</button></div></div>`;
+  document.body.appendChild(overlay);
+}
+
+// Enter key support
+document.addEventListener('keydown', e=>{
+  if(e.key==='Enter'){
+    if(!$('auth-page').classList.contains('hidden')){
+      if(!$('login-form').classList.contains('hidden')) doLogin();
+      else doRegister();
+    }
+  }
+  if(e.key==='Escape') closeModal();
+});
+</script>
+</body>
+</html>
