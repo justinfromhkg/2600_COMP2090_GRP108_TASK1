@@ -1,6 +1,6 @@
 # ✈ SkyBooker — Flight Booking System
 
-> COMP2090 Group 108 Course Project
+> COMP2090 Group 108 Course Project Task1
 
 [![License: Anti 996](https://img.shields.io/badge/license-Anti%20996-blue.svg)](https://github.com/996icu/996.ICU/blob/master/LICENSE)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-brightgreen.svg)](https://www.python.org/)
@@ -81,7 +81,7 @@
 
 ```bash
 git clone https://github.com/justinfromhkg/2600_COMP2090_GRP108.git
-cd 2600_COMP2090_GRP108
+cd 2600_COMP2090_GRP108/task1
 ```
 
 2. **Create a virtual environment** *(recommended)*
