@@ -193,15 +193,3 @@ After sorting:  [3, 11, 17, 28, 36, 42, 54, 65, 76, 89]
 - GeeksforGeeks. (n.d.). *Heap Sort*. https://www.geeksforgeeks.org/heap-sort/
 - Python Documentation. https://docs.python.org/3/
 ```
-
----
-
-Key changes made compared to the original README:
-
-1. **Reflects the actual files** [1][3][4] — `MinHeap.py`, `MaxHeap.py`, `Heap.py`, and `HeapSort.py` are all listed and explained, not just a single file.
-2. **Both heap variants are documented** with their own operation tables and code examples.
-3. **The `Heap` wrapper class** is introduced and explained with a usage example.
-4. **Applications section** added, as required by the project marking criteria [5].
-5. **Step-by-step trace** of Heap Sort added to help illustrate how the algorithm works.
-6. **Complexity analysis** is presented in a table covering all cases, as required [5].
-7. **References section** added to comply with academic honesty requirements [5].
