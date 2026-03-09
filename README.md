@@ -179,7 +179,7 @@ This project is licensed under the [Anti-996 License](LICENSE).
 
 
 # Task 2
-# Task 2 — Self-Study: Heap & Heap Sort
+# Self-Study: Heap & Heap Sort
 
 A self-study report and implementation of the **Heap** data structure and **Heap Sort** algorithm in Python, as part of the COMP2090SEF Course Project (2026 Spring).
 
