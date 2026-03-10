@@ -814,16 +814,16 @@ function flightTable(flights, showBook){
     html+=`<tr>
       <td style="font-weight:600">${f.number}</td><td>${f.origin}</td><td>${f.destination}</td>
       <td>${f.date}</td><td>${f.departure}</td><td>${f.aircraft}</td><td><span class="seats-badge ${cls}">${f.seats===0?'Full':f.seats}</span></td>`;
-    if(showBook) html+=`<td><button class="btn btn-success btn-sm" onclick="bookFlight('${f.number}')" ${f.seats===0?'disabled style="opacity:.5"':''}>Book</button></td>`;
-    if(currentRole==='Admin') html+=`<td><button class="btn btn-outline btn-sm" onclick="viewPassengers('${f.number}')">View</button></td>`;
+    if(showBook) html+=`<td><button class="btn btn-success btn-sm" onclick="bookFlight('${f.number}','${f.departure}')" ${f.seats===0?'disabled style="opacity:.5"':''}>Book</button></td>`;
+    if(currentRole==='Admin') html+=`<td><button class="btn btn-outline btn-sm" onclick="viewPassengers('${f.number}','${f.departure}')">View</button></td>`;
     html+='</tr>';
   });
   html+='</tbody></table>';
   return html;
 }
 
-async function bookFlight(num){
-  const r = await api('book_flight', num);
+async function bookFlight(num, departure){
+  const r = await api('book_flight', num, departure);
   toast(r.msg, r.ok?'success':'error');
   if(r.ok) loadFlightsTable($('flight-search')?.value||'');
 }
@@ -842,13 +842,13 @@ async function renderBookings(el){
   let html='<div class="table-wrap"><table><thead><tr><th>Flight</th><th>Origin</th><th>Destination</th><th>Date</th><th>Departure</th><th>Aircraft</th><th>Action</th></tr></thead><tbody>';
   bookings.forEach(f=>{
     html+=`<tr><td style="font-weight:600">${f.number}</td><td>${f.origin}</td><td>${f.destination}</td><td>${f.date}</td><td>${f.departure}</td><td>${f.aircraft}</td>
-    <td><button class="btn btn-danger btn-sm" onclick="cancelBooking('${f.number}')">Cancel</button></td></tr>`;
+    <td><button class="btn btn-danger btn-sm" onclick="cancelBooking('${f.number}','${f.departure}')">Cancel</button></td></tr>`;
   });
   html+='</tbody></table></div>';
   card.innerHTML=html;
 }
-async function cancelBooking(num){
-  const r = await api('cancel_booking', num);
+async function cancelBooking(num, departure){
+  const r = await api('cancel_booking', num, departure);
   toast(r.msg, r.ok?'success':'error');
   if(r.ok) renderBookings($('main-content'));
 }
@@ -876,8 +876,8 @@ async function loadManageTable(){
     html+=`<tr><td style="font-weight:600">${f.number}</td><td>${f.origin}</td><td>${f.destination}</td><td>${f.date}</td><td>${f.aircraft}</td>
     <td>${f.departure}</td><td><span class="seats-badge ${cls}">${f.seats===0?'Full':f.seats}</span></td>
     <td style="display:flex;gap:6px">
-      <button class="btn btn-outline btn-sm" onclick="showUpdateTimeModal('${f.number}','${f.departure}')">Edit Time</button>
-      <button class="btn btn-danger btn-sm" onclick="removeFlight('${f.number}')">Remove</button>
+      <button class="btn btn-outline btn-sm" onclick="showUpdateTimeModal('${f.number}','${f.departure}','${f.departure}')">Edit Time</button>
+      <button class="btn btn-danger btn-sm" onclick="removeFlight('${f.number}','${f.departure}')">Remove</button>
     </td></tr>`;
   });
   html+='</tbody></table>';
@@ -911,27 +911,27 @@ async function doAddFlight(){
   if(r.ok){ closeModal(); loadManageTable(); }
 }
 
-function showUpdateTimeModal(num, current){
+function showUpdateTimeModal(num, current, departure){
   const overlay=document.createElement('div'); overlay.className='modal-overlay'; overlay.onclick=e=>{if(e.target===overlay)closeModal();};
   overlay.innerHTML=`<div class="modal"><h3>Update Departure Time</h3>
     <p style="margin-bottom:16px;color:var(--text-secondary)">Flight: <strong>${num}</strong></p>
     <div class="form-group"><label>New Departure Time</label><input id="m-newtime" value="${current}"/></div>
     <div class="modal-actions">
       <button class="btn btn-outline btn-sm" onclick="closeModal()">Cancel</button>
-      <button class="btn btn-primary btn-sm" onclick="doUpdateTime('${num}')">Update</button>
+      <button class="btn btn-primary btn-sm" onclick="doUpdateTime('${num}','${departure}')">Update</button>
     </div></div>`;
   document.body.appendChild(overlay);
 }
-async function doUpdateTime(num){
+async function doUpdateTime(num, departure){
   const t=$('m-newtime').value.trim();
   if(!t){ toast('Please enter a time','error'); return; }
-  const r = await api('update_flight_time', num, t);
+  const r = await api('update_flight_time', num, departure, t);
   toast(r.msg, r.ok?'success':'error');
   if(r.ok){ closeModal(); loadManageTable(); }
 }
 
-async function removeFlight(num){
-  const r = await api('remove_flight', num);
+async function removeFlight(num, departure){
+  const r = await api('remove_flight', num, departure);
   toast(r.msg, r.ok?'success':'error');
   if(r.ok) loadManageTable();
 }

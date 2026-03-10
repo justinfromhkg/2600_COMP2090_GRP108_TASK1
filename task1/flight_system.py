@@ -28,9 +28,9 @@ class System:
         self._flights.append(flight)
         return "Flight added successfully"
 
-    def remove_flight(self, flight_number):
+    def remove_flight(self, flight_number, departure_time):
         for flight in self._flights:
-            if flight.get_flight_number() == flight_number:
+            if flight.get_flight_number() == flight_number and flight.get_departure_time() == departure_time:
                 self._flights.remove(flight)
                 return "Flight removed successfully"
         return "Flight not found"
@@ -47,9 +47,9 @@ class System:
                 result.append(flight)
         return result
 
-    def update_flight_time(self, flight_number, new_time):
+    def update_flight_time(self, flight_number, departure_time, new_time):
         for flight in self._flights:
-            if flight.get_flight_number() == flight_number:
+            if flight.get_flight_number() == flight_number and flight.get_departure_time() == departure_time:
                 flight.set_departure_time(new_time)
                 return "Flight time updated"
         return "Flight not found"
@@ -57,9 +57,9 @@ class System:
     # -------------------------
     # Booking Logic
     # -------------------------
-    def book_flight(self, passenger, flight_number):
+    def book_flight(self, passenger, flight_number, departure_time):
         for flight in self._flights:
-            if flight.get_flight_number() == flight_number:
+            if flight.get_flight_number() == flight_number and flight.get_departure_time() == departure_time:
                 if passenger in flight.get_passenger_list():
                     return "You have booked the flight already"
                 if flight.add_passenger(passenger):
@@ -67,9 +67,9 @@ class System:
                 return "No available seats"
         return "Flight not found"
 
-    def cancel_booking(self, passenger, flight_number):
+    def cancel_booking(self, passenger, flight_number, departure_time):
         for flight in self._flights:
-            if flight.get_flight_number() == flight_number:
+            if flight.get_flight_number() == flight_number and flight.get_departure_time() == departure_time:
                 if flight.remove_passenger(passenger):
                     return "Booking cancelled"
                 return "Passenger not booked on this flight"

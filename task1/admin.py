@@ -50,14 +50,14 @@ class Admin(Person):
             return system.add_flight(flight)
         return "Permission denied"
 
-    def remove_flight(self, system, flight_number):
+    def remove_flight(self, system, flight_number, departure_time):
         if self._adminLevel >= 3:
-            return system.remove_flight(flight_number)
+            return system.remove_flight(flight_number, departure_time)
         return "Permission denied"
 
-    def update_flight_time(self, system, flight_number, new_time):
+    def update_flight_time(self, system, flight_number, departure_time, new_time):
         if self._adminLevel >= 3:
-            return system.update_flight_time(flight_number, new_time)
+            return system.update_flight_time(flight_number, departure_time, new_time)
         return "Permission denied"
 
     def view_all_flights(self, system):

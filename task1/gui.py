@@ -100,20 +100,20 @@ class Api:
         return json.dumps([self._flight_dict(f) for f in flights])
 
     # ---------- Passenger actions ----------
-    def book_flight(self, flight_number):
+    def book_flight(self, flight_number, departure_time):
         if self.current_user is None:
             return json.dumps({"ok": False, "msg": "Not logged in"})
-        msg = self.system.book_flight(self.current_user, flight_number)
+        msg = self.system.book_flight(self.current_user, flight_number, departure_time)
         ok = msg == "Booking successful"
         time.sleep(0.1)
         if ok:
             self._save()
         return json.dumps({"ok": ok, "msg": msg})
 
-    def cancel_booking(self, flight_number):
+    def cancel_booking(self, flight_number, departure_time):
         if self.current_user is None:
             return json.dumps({"ok": False, "msg": "Not logged in"})
-        msg = self.system.cancel_booking(self.current_user, flight_number)
+        msg = self.system.cancel_booking(self.current_user, flight_number, departure_time)
         ok = msg == "Booking cancelled"
         if ok:
             self._save()
@@ -139,19 +139,19 @@ class Api:
             self._save()
         return json.dumps({"ok": ok, "msg": msg})
 
-    def remove_flight(self, flight_number):
+    def remove_flight(self, flight_number, departure_time):
         if not self._is_admin():
             return json.dumps({"ok": False, "msg": "Permission denied"})
-        msg = self.current_user.remove_flight(self.system, flight_number)
+        msg = self.current_user.remove_flight(self.system, flight_number, departure_time)
         ok = msg == "Flight removed successfully"
         if ok:
             self._save()
         return json.dumps({"ok": ok, "msg": msg})
 
-    def update_flight_time(self, flight_number, new_time):
+    def update_flight_time(self, flight_number, departure_time, new_time):
         if not self._is_admin():
             return json.dumps({"ok": False, "msg": "Permission denied"})
-        msg = self.current_user.update_flight_time(self.system, flight_number, new_time)
+        msg = self.current_user.update_flight_time(self.system, flight_number, departure_time, new_time)
         ok = msg == "Flight time updated"
         if ok:
             self._save()
