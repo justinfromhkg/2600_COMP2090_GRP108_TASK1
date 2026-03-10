@@ -1,6 +1,6 @@
 class Flight:
     def __init__(self, flight_number, origin, 
-                 destination, departure_time, capacity, aircraft):
+                 destination, departure_time, capacity, aircraft, flight_date):
         # encapsulation
         self._flight_number = flight_number
         self._origin = origin
@@ -9,6 +9,7 @@ class Flight:
         self._capacity = capacity
         self._booked_passengers = []
         self._aircraft = aircraft
+        self._flight_date = flight_date
 
     # -------------------------
     # Getter methods
@@ -34,6 +35,9 @@ class Flight:
     def get_aircraft(self):
         return self._aircraft
 
+    def get_flight_date(self):
+        return self._flight_date
+
     # -------------------------
     # Setter
     # -------------------------
@@ -57,6 +61,9 @@ class Flight:
 
     def set_aircraft(self, new_aircraft):
         self._aircraft = new_aircraft
+
+    def set_flight_date(self, new_date):
+        self._flight_date = new_date
 
     # -------------------------
     # Booking logic
@@ -87,6 +94,7 @@ class Flight:
             "departure_time": self._departure_time,
             "capacity": self._capacity,
             "aircraft": self._aircraft,
+            "flight_date": self._flight_date,
             "booked_passengers": [p.get_username() for p in self._booked_passengers],
         }
 
@@ -99,6 +107,7 @@ class Flight:
             data["departure_time"],
             data["capacity"],
             data["aircraft"],
+            data.get("flight_date", ""),
         )
         for username in data.get("booked_passengers", []):
             if username in users_map:

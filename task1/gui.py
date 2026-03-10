@@ -34,11 +34,14 @@ class Api:
     def _seed_demo_data(self):
         """Pre-populate some flights so the UI is not empty on first run."""
         demo_flights = [
-            Flight("CA1001", "Beijing",    "Shanghai",   "2026-03-15 08:00", 120, "Airbus A319"),
-            Flight("MU2045", "Guangzhou",  "Chengdu",    "2026-03-16 10:30", 150, "Airbus A320"),
-            Flight("CZ3521", "Shenzhen",   "Hangzhou",   "2026-03-17 14:00", 80, "C909"),
-            Flight("HU7890", "Shanghai",   "Beijing",    "2026-03-18 18:45", 220, "Boeing 787-9"),
-            Flight("FM9101", "Chengdu",    "Kunming",    "2026-03-19 07:15", 120, "Boeing 737-700"),
+            Flight("CA1001", "Beijing",    "Shanghai",   "2026-03-15 08:00", 120, "Airbus A319", "2026-03-15"),
+            Flight("MU2045", "Guangzhou",  "Chengdu",    "2026-03-16 10:30", 150, "Airbus A320", "2026-03-16"),
+            Flight("CZ3521", "Shenzhen",   "Hangzhou",   "2026-03-17 14:00", 80, "C909", "2026-03-17"),
+            Flight("HU7890", "Shanghai",   "Beijing",    "2026-03-18 18:45", 220, "Boeing 787-9", "2026-03-18"),
+            Flight("FM9101", "Chengdu",    "Kunming",    "2026-03-19 07:15", 120, "Boeing 737-700", "2026-03-19"),
+            # Same flight code on different days
+            Flight("CA1001", "Beijing",    "Shanghai",   "2026-03-16 08:00", 120, "Airbus A319", "2026-03-16"),
+            Flight("CA1001", "Beijing",    "Shanghai",   "2026-03-17 08:00", 120, "Airbus A319", "2026-03-17"),
         ]
         for f in demo_flights:
             self.system.add_flight(f)
@@ -126,10 +129,10 @@ class Api:
         return json.dumps(result)
 
     # ---------- Admin actions ----------
-    def add_flight(self, number, origin, dest, time, capacity, aircraft):
+    def add_flight(self, number, origin, dest, time, capacity, aircraft, date):
         if not self._is_admin():
             return json.dumps({"ok": False, "msg": "Permission denied"})
-        flight = Flight(number, origin, dest, time, int(capacity), aircraft)
+        flight = Flight(number, origin, dest, time, int(capacity), aircraft, date)
         msg = self.current_user.add_flight(self.system, flight)
         ok = msg == "Flight added successfully"
         if ok:
@@ -177,6 +180,7 @@ class Api:
             "destination": f.get_destination(),
             "departure": f.get_departure_time(),
             "aircraft": f.get_aircraft(),
+            "date": f.get_flight_date(),
             "seats": f.get_available_seats(),
         }
 
