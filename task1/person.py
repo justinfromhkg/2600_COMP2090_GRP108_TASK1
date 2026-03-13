@@ -1,9 +1,7 @@
 # it is a ADT class
 from abc import ABC, abstractmethod
 
-# for password hashing, 
-# more secure
-from passlib.hash import bcrypt
+import bcrypt
 
 
 class Person(ABC):
@@ -12,14 +10,13 @@ class Person(ABC):
         self._username = username
         self._name = name
         self._email = email
-        self.__password = bcrypt.hash(password)
+        self.__password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
 
     def set_password(self, password):
-        # store the password in hashing
-        self.__password = bcrypt.hash(password)
+        self.__password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
 
     def check_password(self, password):
-        return bcrypt.verify(password, self.__password)
+        return bcrypt.checkpw(password.encode('utf-8'), self.__password.encode('utf-8'))
     
     def get_username(self):
         return self._username
