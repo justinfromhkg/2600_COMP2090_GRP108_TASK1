@@ -1,7 +1,7 @@
 # Self-Study: Heap & Heap Sort
 
 A self-study report and implementation of the **Heap** data structure and **Heap Sort** algorithm in Python, as part of the COMP2090SEF Course Project (2026 Spring).
-/n[click here for the introduction video](https://drive.google.com/file/d/1KN6HDoPxlIIN7HmXQjoTRXSeQs-tT4DQ/view?usp=sharing).
+[click here for the introduction video](https://drive.google.com/file/d/1KN6HDoPxlIIN7HmXQjoTRXSeQs-tT4DQ/view?usp=sharing).
 ---
 
 ## Files
