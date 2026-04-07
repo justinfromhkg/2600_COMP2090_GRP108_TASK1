@@ -1,6 +1,7 @@
 # Task 1
 # ✈ SkyBooker — Flight Booking System
-
+---
+[click here for the introduction video of task 1](https://drive.google.com/file/d/140LTSJ9lpI6kNodT_ZKVKsUW-kA-KwAz/view?usp=sharing).
 > COMP2090 Group 108 Course Project Task1
 
 [![License: Anti 996](https://img.shields.io/badge/license-Anti%20996-blue.svg)](https://github.com/996icu/996.ICU/blob/master/LICENSE)
@@ -182,7 +183,7 @@ This project is licensed under the [Anti-996 License](LICENSE).
 # Self-Study: Heap & Heap Sort
 
 A self-study report and implementation of the **Heap** data structure and **Heap Sort** algorithm in Python, as part of the COMP2090SEF Course Project (2026 Spring).
-
+[click here for the introduction video of task 2](https://drive.google.com/file/d/1KN6HDoPxlIIN7HmXQjoTRXSeQs-tT4DQ/view?usp=sharing)
 ---
 
 ## Files
