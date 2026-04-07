@@ -1,6 +1,6 @@
 # ✈ SkyBooker — Flight Booking System
 ---
-[click here for the introduction video](https://drive.google.com/file/d/140LTSJ9lpI6kNodT_ZKVKsUW-kA-KwAz/view?usp=sharing).
+# [click here for the introduction video](https://drive.google.com/file/d/140LTSJ9lpI6kNodT_ZKVKsUW-kA-KwAz/view?usp=sharing)
 
 > COMP2090 Group 108 Course Project
 
