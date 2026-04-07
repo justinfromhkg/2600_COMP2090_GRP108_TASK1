@@ -1,7 +1,7 @@
 # Task 1
 # ✈ SkyBooker — Flight Booking System
 ---
-#[click here for the introduction video of task 1](https://drive.google.com/file/d/140LTSJ9lpI6kNodT_ZKVKsUW-kA-KwAz/view?usp=sharing)
+# [click here for the introduction video of task 1](https://drive.google.com/file/d/140LTSJ9lpI6kNodT_ZKVKsUW-kA-KwAz/view?usp=sharing)
 > COMP2090 Group 108 Course Project Task1
 
 [![License: Anti 996](https://img.shields.io/badge/license-Anti%20996-blue.svg)](https://github.com/996icu/996.ICU/blob/master/LICENSE)
